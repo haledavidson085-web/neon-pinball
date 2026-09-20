@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@plugin "daisyui" { themes: night --default, synthwave; }
+@plugin "daisyui/theme" {
+  name: "night";
+  default: true;
+  --color-primary: oklch(72% 0.22 330);
+  --color-primary-content: oklch(14% 0.03 290);
+  --color-secondary: oklch(82% 0.15 190);
+  --color-accent: oklch(83% 0.17 85);
+  --radius-box: 1rem;
+}
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-synthesis: none; text-rendering: optimizeLegibility; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, canvas { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

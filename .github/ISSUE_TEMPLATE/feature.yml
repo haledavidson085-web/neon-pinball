@@ -1,0 +1,36 @@
+name: Feature
+description: Propose one independently deliverable feature
+title: "[Feature]: "
+labels: ["type:feature", "priority:medium", "status:triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem, description: What user problem should this solve? }
+    validations: { required: true }
+  - type: textarea
+    id: scope
+    attributes: { label: Scope and exclusions }
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance criteria, placeholder: "- [ ] Observable outcome" }
+    validations: { required: true }
+  - type: textarea
+    id: privacy
+    attributes: { label: Privacy and security impact }
+    validations: { required: true }
+  - type: textarea
+    id: testing
+    attributes: { label: Testing plan }
+    validations: { required: true }
+  - type: input
+    id: owner
+    attributes: { label: Owner }
+    validations: { required: true }
+  - type: input
+    id: dependencies
+    attributes: { label: Dependencies }
+  - type: input
+    id: release
+    attributes: { label: Target release, placeholder: v1.0.0 }
+    validations: { required: true }

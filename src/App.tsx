@@ -1,0 +1,35 @@
+import { useCallback, useRef, useState } from 'react'
+import { CircleHelp, Gamepad2, Pause, Play, RotateCcw, Volume2, VolumeX, Zap } from 'lucide-react'
+import { GameBoard, type GameControls, type GameState } from './components/GameBoard'
+import { formatScore } from './game/scoring'
+const initial: GameState = { score: 0, highScore: 0, balls: 3, multiplier: 1, status: 'ready' }
+function App() {
+  const [game, setGame] = useState(initial); const [sound, setSound] = useState(true); const [pulse, setPulse] = useState('READY'); const [help, setHelp] = useState(false)
+  const [command, setCommand] = useState<{ type: 'start' | 'pause'; id: number } | null>(null); const controls = useRef<GameControls>(null); const pulseTimer = useRef<number>(0)
+  const showPulse = useCallback((label: string) => { setPulse(label); window.clearTimeout(pulseTimer.current); pulseTimer.current = window.setTimeout(() => setPulse(''), 850) }, [])
+  const send = (type: 'start' | 'pause') => setCommand({ type, id: Date.now() }); const active = game.status === 'playing'
+  const touch = (side: 'left' | 'right', pressed: boolean) => controls.current?.flipper(side, pressed)
+  return (
+    <main className="min-h-svh bg-base-300 px-3 py-4 text-base-content sm:px-6">
+      <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,720px)_280px]">
+        <header className="flex items-center justify-between lg:col-span-2">
+          <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-box bg-primary text-primary-content shadow-lg"><Zap aria-hidden="true" /></span><div><h1 className="text-xl font-black tracking-[.16em] sm:text-2xl">NEON CIRCUIT</h1><p className="text-xs uppercase tracking-[.22em] text-base-content/55">Electric pinball</p></div></div>
+          <div className="flex gap-2"><button className="btn btn-square btn-ghost" onClick={() => setSound((value) => !value)} aria-label={sound ? 'Mute sound' : 'Enable sound'}>{sound ? <Volume2 /> : <VolumeX />}</button><button className="btn btn-square btn-ghost" onClick={() => setHelp(true)} aria-label="How to play"><CircleHelp /></button></div>
+        </header>
+        <section className="relative overflow-hidden rounded-box border border-primary/20 bg-base-100 shadow-2xl" aria-label="Game area">
+          <GameBoard sound={sound} command={command} onChange={setGame} onPulse={showPulse} onReady={(value) => { controls.current = value }} />
+          {pulse && <div className="pointer-events-none absolute inset-x-0 top-1/3 text-center text-4xl font-black tracking-wider text-primary drop-shadow-lg" aria-live="polite">{pulse}</div>}
+          {(game.status === 'ready' || game.status === 'gameover' || game.status === 'paused') && <div className="absolute inset-0 grid place-items-center bg-neutral/60 p-6 backdrop-blur-sm"><div className="card max-w-sm bg-base-100 text-center shadow-2xl"><div className="card-body items-center"><Gamepad2 className="size-12 text-primary" aria-hidden="true" /><h2 className="card-title text-2xl">{game.status === 'gameover' ? 'Circuit broken' : game.status === 'paused' ? 'Game paused' : 'Charge the table'}</h2><p className="text-base-content/65">{game.status === 'gameover' ? `Final score: ${formatScore(game.score)}` : 'Light all three lanes, hit the bumpers, and climb the multiplier.'}</p><div className="card-actions mt-2"><button className="btn btn-primary" onClick={() => send(game.status === 'paused' ? 'pause' : 'start')}><Play className="size-4" />{game.status === 'paused' ? 'Resume' : game.status === 'gameover' ? 'Play again' : 'Start game'}</button></div></div></div></div>}
+          <div className="absolute inset-x-0 bottom-3 flex justify-between px-4 lg:hidden" aria-label="Touch flippers"><button className="btn btn-circle btn-lg border-secondary/40 bg-base-100/75" onPointerDown={() => touch('left', true)} onPointerUp={() => touch('left', false)} onPointerCancel={() => touch('left', false)} aria-label="Left flipper">◀</button><button className="btn btn-circle btn-lg border-secondary/40 bg-base-100/75" onPointerDown={() => touch('right', true)} onPointerUp={() => touch('right', false)} onPointerCancel={() => touch('right', false)} aria-label="Right flipper">▶</button></div>
+        </section>
+        <aside className="flex flex-col gap-4">
+          <div className="stats stats-vertical w-full border border-base-content/10 bg-base-100 shadow-lg"><div className="stat"><div className="stat-title">Score</div><div className="stat-value font-mono text-primary">{formatScore(game.score)}</div><div className="stat-desc">High {formatScore(game.highScore)}</div></div><div className="stat"><div className="stat-title">Multiplier</div><div className="stat-value text-secondary">{game.multiplier}×</div><div className="stat-desc">Complete A · B · C</div></div></div>
+          <div className="card card-border bg-base-100"><div className="card-body"><div className="flex items-center justify-between"><h2 className="card-title">Ball rack</h2><span className={`badge ${active ? 'badge-success' : 'badge-ghost'}`}>{game.status}</span></div><div className="flex gap-2" aria-label={`${game.balls} balls remaining`}>{[0,1,2].map((index) => <span key={index} className={`size-5 rounded-full border-2 ${index < game.balls ? 'border-primary bg-primary shadow-[0_0_12px_currentColor]' : 'border-base-content/20'}`} />)}</div><div className="card-actions mt-2 grid grid-cols-2"><button className="btn" onClick={() => send('pause')} disabled={game.status !== 'playing' && game.status !== 'paused'}>{game.status === 'paused' ? <Play className="size-4" /> : <Pause className="size-4" />}{game.status === 'paused' ? 'Resume' : 'Pause'}</button><button className="btn" onClick={() => send('start')}><RotateCcw className="size-4" />Restart</button><button className="btn btn-primary col-span-2" onClick={() => controls.current?.launch()}>Launch ball <kbd className="kbd kbd-sm">Space</kbd></button></div></div></div>
+          <div className="card bg-base-200"><div className="card-body text-sm"><h2 className="card-title text-base">Controls</h2><p><kbd className="kbd kbd-sm">A</kbd> / <kbd className="kbd kbd-sm">←</kbd> left flipper</p><p><kbd className="kbd kbd-sm">D</kbd> / <kbd className="kbd kbd-sm">→</kbd> right flipper</p><p><kbd className="kbd kbd-sm">P</kbd> pause</p></div></div>
+        </aside>
+      </div>
+      <dialog className={`modal ${help ? 'modal-open' : ''}`} open={help} onClose={() => setHelp(false)}><div className="modal-box"><h2 className="text-xl font-bold">How to play</h2><div className="space-y-3 py-4 text-base-content/70"><p>Launch with Space, then keep the ball alive with both flippers.</p><p>Pink bumpers score 250 points, cyan targets score 500, and each A–B–C lane set raises your multiplier.</p><p>You have three balls. Your best score stays on this device.</p></div><div className="modal-action"><button className="btn" onClick={() => setHelp(false)}>Got it</button></div></div><form method="dialog" className="modal-backdrop"><button onClick={() => setHelp(false)}>Close</button></form></dialog>
+    </main>
+  )
+}
+export default App

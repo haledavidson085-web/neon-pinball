@@ -1,0 +1,32 @@
+name: Release
+on:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with: { bun-version: 1.4.2 }
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: tar -czf "neon-pinball-${GITHUB_REF_NAME}.tar.gz" -C dist .
+      - run: sha256sum "neon-pinball-${GITHUB_REF_NAME}.tar.gz" > "neon-pinball-${GITHUB_REF_NAME}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: neon-pinball-*
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: release-assets }
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" neon-pinball-* --generate-notes --verify-tag
