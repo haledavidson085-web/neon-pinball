@@ -59,4 +59,6 @@ Codex `gpt-5.6-sol` owns scope, integration, validation, and final reporting. Ag
 - Web Audio requires a user gesture; sound begins only after play/launch input and is never required for gameplay.
 - A static archive is the production artifact; native executable and self-update requirements do not apply to this web target.
 
-Definition of done: the full three-ball flow is playable across keyboard and touch; acceptance and release gates pass; UI remains clear at supported sizes and themes; only a high-score integer is stored; documentation, license, issue forms, and traceable release artifact are present.
+GitHub Pages is the hosted web channel. Pushes to `main` validate the project before deploying the immutable `dist` artifact through GitHub's OIDC-backed Pages environment; version tags continue to produce downloadable release archives and checksums.
+
+Definition of done: the full three-ball flow is playable across keyboard and touch; acceptance and release gates pass; UI remains clear at supported sizes and themes; only a high-score integer is stored; documentation, license, issue forms, hosted Pages deployment, and traceable release artifact are present.

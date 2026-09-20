@@ -28,6 +28,10 @@ bun run check
 
 The physics and canvas renderer live in `src/game/PinballTable.ts`; deterministic scoring rules are isolated in `src/game/scoring.ts`. React owns the responsive controls and status UI. High scores remain in browser `localStorage`; the game has no backend, accounts, analytics, advertisements, or network calls at runtime.
 
+## GitHub Pages
+
+Every push to `main` runs the validation suite, builds the app with the `/neon-pinball/` base path, and deploys `dist` through GitHub Pages. The workflow can also be started manually from the Actions tab.
+
 ## Release
 
 Push a tag such as `v1.0.0`. The release workflow validates the project, builds a static site archive, generates its SHA-256 checksum, and publishes both to GitHub Releases.
